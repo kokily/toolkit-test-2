@@ -2,6 +2,7 @@ import { Context, Middleware } from 'koa';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { Admin } from '../../entities/Admin';
 import { getRepository } from 'typeorm';
+import { Token } from '../../entities/Token';
 
 export type TokenType = {
   iat: number;
@@ -106,8 +107,6 @@ export const refresh = async (ctx: Context, refreshToken: string) => {
 };
 
 const jwtMiddleware: Middleware = async (ctx, next) => {
-  if (ctx.path.includes('/api/auth/logout')) return next();
-
   let accessToken: string | undefined = ctx.cookies.get('access_token');
   const refreshToken: string | undefined = ctx.cookies.get('refresh_token');
 
@@ -128,19 +127,27 @@ const jwtMiddleware: Middleware = async (ctx, next) => {
 
     const diff = accessTokenData.exp * 1000 - new Date().getTime();
 
-    if (diff < 1000 * 60 * 30 && refreshToken) {
+    if (diff < 1000 * 60 * 30 && refreshToken !== undefined) {
       await refresh(ctx, refreshToken);
+    } else {
+      const admin = await getRepository(Admin).findOne({ id: accessTokenData.admin_id });
+
+      if (!admin) {
+        throw new Error('관리자가 존재하지 않습니다.');
+      }
+
+      const tokens = await admin.generateToken();
+
+      setCookie(ctx, tokens);
     }
   } catch (err) {
     if (!refreshToken) return next();
 
     try {
-      const adminId = await refresh(ctx, refreshToken);
+      const admin_id = await refresh(ctx, refreshToken);
 
-      ctx.state.admin_id = adminId;
-    } catch (err) {
-      console.error(err);
-    }
+      ctx.state.admin_id = admin_id;
+    } catch (err) {}
   }
 
   return next();

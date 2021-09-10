@@ -1,8 +1,9 @@
 import { Context } from 'koa';
 import Joi from 'joi';
 import { validateBody } from '../../libs/utils';
-import { getManager } from 'typeorm';
+import { getManager, getRepository } from 'typeorm';
 import { Admin } from '../../entities/Admin';
+import { Token } from '../../entities/Token';
 import { setCookie } from '../../libs/middlewares/authenticate';
 
 export default async function login(ctx: Context) {
