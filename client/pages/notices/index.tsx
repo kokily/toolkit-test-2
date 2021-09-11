@@ -1,7 +1,6 @@
 import { NextPage } from 'next';
 import { connect } from 'react-redux';
 import { END } from '@redux-saga/core';
-import useLoggedIn from '../../libs/hooks/useLoggedIn';
 import { RootState } from '../../libs/modules';
 import { listNoticesRequest } from '../../libs/modules/notices';
 import wrapper, { SagaStore } from '../../libs/store';
@@ -20,7 +19,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store) => async ()
 });
 
 const ListNoticesPage: NextPage = () => {
-  useLoggedIn();
   const { title, tag, onChange, onTag } = useSearch();
   const { notices } = useListNotices(title, tag);
 

@@ -89,6 +89,7 @@ export function setCookie(
 export const refresh = async (ctx: Context, refreshToken: string) => {
   try {
     const decoded = await decodeToken<RefreshTokenType>(refreshToken);
+
     const admin = await getRepository(Admin).findOne(decoded.admin_id);
     if (!admin) {
       const error = new Error('InvalidUserError');
@@ -99,7 +100,9 @@ export const refresh = async (ctx: Context, refreshToken: string) => {
       decoded.exp,
       refreshToken
     );
+
     setCookie(ctx, tokens);
+
     return decoded.admin_id;
   } catch (err) {
     throw err;
@@ -127,26 +130,18 @@ const jwtMiddleware: Middleware = async (ctx, next) => {
 
     const diff = accessTokenData.exp * 1000 - new Date().getTime();
 
-    if (diff < 1000 * 60 * 30 && refreshToken !== undefined) {
+    if (diff < 1000 * 60 * 30 && refreshToken) {
       await refresh(ctx, refreshToken);
-    } else {
-      const admin = await getRepository(Admin).findOne({ id: accessTokenData.admin_id });
-
-      if (!admin) {
-        throw new Error('관리자가 존재하지 않습니다.');
-      }
-
-      const tokens = await admin.generateToken();
-
-      setCookie(ctx, tokens);
     }
   } catch (err) {
-    if (!refreshToken) return next();
+    if (!refreshToken) {
+      return next();
+    }
 
     try {
-      const admin_id = await refresh(ctx, refreshToken);
+      const adminId = await refresh(ctx, refreshToken);
 
-      ctx.state.admin_id = admin_id;
+      ctx.state.admin_id = adminId;
     } catch (err) {}
   }
 

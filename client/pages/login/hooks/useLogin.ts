@@ -14,25 +14,22 @@ export default function useLogin() {
     setPassword(e.target.value);
   }, []);
 
-  const onLogin = async (e: React.MouseEvent) => {
+  const onLogin = (e: React.MouseEvent) => {
+    e.preventDefault();
+
     if (password === '') {
       alert('비밀번호를 입력하세요');
       return;
     }
 
-    try {
-      dispatch(loginRequest({ password }));
-    } catch (err) {
-      alert(err);
-    }
+    dispatch(loginRequest({ password }));
   };
 
   useEffect(() => {
     if (user) {
-      router.replace('/');
-
       try {
         localStorage.setItem('dnkdream_admin', JSON.stringify(user));
+        window.location.href = '/';
       } catch (err) {
         console.log('Localstorage is not working');
       }

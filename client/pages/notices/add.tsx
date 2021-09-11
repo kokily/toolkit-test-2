@@ -1,7 +1,10 @@
 import { END } from '@redux-saga/core';
 import axios from 'axios';
+import { connect } from 'react-redux';
 import Title from '../../components/common/Title';
+import AddNotice from '../../components/notices/AddNotice';
 import useLoggedIn from '../../libs/hooks/useLoggedIn';
+import { RootState } from '../../libs/modules';
 import { meRequest } from '../../libs/modules/auth';
 import wrapper, { SagaStore } from '../../libs/store';
 import useAddNotice from './hooks/useAddNotice';
@@ -11,9 +14,17 @@ function AddNoticePage() {
   const notice = useAddNotice();
 
   return (
-    <div>
-      <Title value={notice.title} onChange={notice.onChangeTitle} />
-    </div>
+    <AddNotice
+      title={notice.title}
+      body={notice.body}
+      thumbnail={notice.thumbnail}
+      tags={notice.tags}
+      onChangeTitle={notice.onChangeTitle}
+      onChangeBody={notice.onChangeBody}
+      onChangeTags={notice.onChangeTags}
+      onBack={notice.onBack}
+      onAddNotice={notice.onAddNotice}
+    />
   );
 }
 
@@ -38,4 +49,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
   }
 );
 
-export default AddNoticePage;
+export default connect((state: RootState) => state)(AddNoticePage);

@@ -1,10 +1,22 @@
 import { END } from '@redux-saga/core';
 import axios from 'axios';
+import { connect } from 'react-redux';
+import useLoggedIn from '../libs/hooks/useLoggedIn';
+import useLogout from '../libs/hooks/useLogout';
+import { RootState } from '../libs/modules';
 import { meRequest } from '../libs/modules/auth';
 import wrapper, { SagaStore } from '../libs/store';
 
 function IndexPage() {
-  return <div>IndexPage</div>;
+  const { user } = useLoggedIn();
+  const { onLogout } = useLogout();
+
+  return (
+    <div>
+      <h3>IndexPage</h3>
+      {user && <button onClick={onLogout}>로그아웃</button>}
+    </div>
+  );
 }
 
 export const getServerSideProps = wrapper.getServerSideProps(
@@ -28,4 +40,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
   }
 );
 
-export default IndexPage;
+export default connect((state: RootState) => state)(IndexPage);

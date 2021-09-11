@@ -12,5 +12,7 @@ export default function useLoggedIn() {
     if (!user) {
       router.push('/');
     }
-  }, [user, router]);
+  }, []);
+
+  return { user };
 }
