@@ -1,10 +1,20 @@
 import { END } from '@redux-saga/core';
 import axios from 'axios';
-import { meRequest } from '../libs/modules/auth';
-import wrapper, { SagaStore } from '../libs/store';
+import Title from '../../components/common/Title';
+import useLoggedIn from '../../libs/hooks/useLoggedIn';
+import { meRequest } from '../../libs/modules/auth';
+import wrapper, { SagaStore } from '../../libs/store';
+import useAddNotice from './hooks/useAddNotice';
 
-function IndexPage() {
-  return <div>IndexPage</div>;
+function AddNoticePage() {
+  useLoggedIn();
+  const notice = useAddNotice();
+
+  return (
+    <div>
+      <Title value={notice.title} onChange={notice.onChangeTitle} />
+    </div>
+  );
 }
 
 export const getServerSideProps = wrapper.getServerSideProps(
@@ -28,4 +38,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
   }
 );
 
-export default IndexPage;
+export default AddNoticePage;

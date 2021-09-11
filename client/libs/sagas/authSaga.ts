@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import {
@@ -9,14 +8,15 @@ import {
   logoutFailure,
   logoutRequest,
   logoutSuccess,
+  meFailure,
+  meRequest,
+  meSuccess,
 } from '../modules/auth';
-
-axios.defaults.baseURL = 'http://localhost:4000/api/auth';
-axios.defaults.withCredentials = true;
+import client from './client';
 
 // Login Saga
 function login(data: LoginPayload) {
-  return axios.post('/login', data);
+  return client.post('/auth/login', data);
 }
 
 function* loginSaga(action: PayloadAction<LoginPayload>) {
@@ -35,7 +35,7 @@ export function* watchLogin() {
 
 // Logout Saga
 function logout() {
-  return axios.post('/logout');
+  return client.post('/auth/logout');
 }
 
 function* logoutSaga() {
@@ -50,4 +50,23 @@ function* logoutSaga() {
 
 export function* watchLogout() {
   yield takeLatest(logoutRequest.type, logoutSaga);
+}
+
+// Me Saga
+function me() {
+  return client.get('/auth/me');
+}
+
+function* meSaga() {
+  try {
+    const result = yield call(me);
+
+    yield put(meSuccess(result.data));
+  } catch (err) {
+    yield put(meFailure(err.response.data));
+  }
+}
+
+export function* watchMe() {
+  yield takeLatest(meRequest.type, meSaga);
 }

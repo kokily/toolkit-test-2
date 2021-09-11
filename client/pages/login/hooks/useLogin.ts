@@ -1,11 +1,12 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginRequest } from '../../../libs/modules/auth';
+import { RootState } from '../../../libs/modules';
 
 export default function useLogin() {
   const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const [password, setPassword] = useState('');
 
@@ -21,12 +22,22 @@ export default function useLogin() {
 
     try {
       dispatch(loginRequest({ password }));
-
-      router.push('/');
     } catch (err) {
       alert(err);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/');
+
+      try {
+        localStorage.setItem('dnkdream_admin', JSON.stringify(user));
+      } catch (err) {
+        console.log('Localstorage is not working');
+      }
+    }
+  }, [router, user]);
 
   return {
     password,

@@ -44,12 +44,7 @@ export default async function login(ctx: Context) {
 
     setCookie(ctx, tokens);
 
-    ctx.body = {
-      tokens: {
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
-      },
-    };
+    ctx.body = admin.id;
   } catch (err) {
     if (err instanceof Error) {
       ctx.throw(500, err);

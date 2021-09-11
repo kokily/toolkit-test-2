@@ -1,30 +1,16 @@
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { me } from '../modules/auth';
+import { useSelector } from 'react-redux';
+import { RootState } from '../modules';
 
 export default function useLoggedIn() {
-  const dispatch = useDispatch();
-
-  const fetch = async () => {
-    try {
-      axios.defaults.baseURL = 'http://localhost:4000';
-      axios.defaults.withCredentials = true;
-      const response = await axios.get('/api/auth/me');
-
-      return response.data;
-    } catch (err) {
-      return err;
-    }
-  };
+  const router = useRouter();
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    fetch()
-      .then((res) => {
-        const admin = res;
-
-        dispatch(me(admin));
-      })
-      .catch((err) => console.log(err));
-  }, []);
+    if (!user) {
+      router.push('/');
+    }
+  }, [user, router]);
 }

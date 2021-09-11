@@ -1,22 +1,23 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import axios from 'axios';
 import qs from 'qs';
 import {
+  addNoticeFailure,
+  AddNoticePayload,
+  addNoticeRequest,
+  addNoticeSuccess,
   listNoticesFailure,
   ListNoticesPayload,
   listNoticesRequest,
   listNoticesSuccess,
 } from '../modules/notices';
 import { PayloadAction } from '@reduxjs/toolkit';
-
-axios.defaults.baseURL = 'http://localhost:4000/api/notices';
-axios.defaults.withCredentials = true;
+import client from './client';
 
 // List Notices Saga
 function listNotices(data: ListNoticesPayload) {
   const queryString = qs.stringify(data);
 
-  return axios.get(`/?${queryString}`);
+  return client.get(`/notices?${queryString}`);
 }
 
 function* listNoticesSaga(action: PayloadAction<ListNoticesPayload>) {
@@ -31,4 +32,23 @@ function* listNoticesSaga(action: PayloadAction<ListNoticesPayload>) {
 
 export function* watchListNotices() {
   yield takeLatest(listNoticesRequest.type, listNoticesSaga);
+}
+
+// Add Notice Saga
+function addNotice(data: AddNoticePayload) {
+  return client.post('/notices', data);
+}
+
+function* addNoticeSaga(action: PayloadAction<AddNoticePayload>) {
+  try {
+    const result = yield call(addNotice, action.payload);
+
+    yield put(addNoticeSuccess(result.data));
+  } catch (err) {
+    yield put(addNoticeFailure(err.response.data));
+  }
+}
+
+export function* watchAddNotice() {
+  yield takeLatest(addNoticeRequest.type, addNoticeSaga);
 }

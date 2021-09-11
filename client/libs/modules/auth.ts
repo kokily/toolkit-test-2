@@ -6,6 +6,8 @@ export type AuthState = {
   loginError: any;
   logoutLoading: boolean;
   logoutError: any;
+  meLoading: boolean;
+  meError: any;
 };
 
 export type LoginPayload = {
@@ -18,6 +20,8 @@ const initialState: AuthState = {
   loginError: null,
   logoutLoading: false,
   logoutError: null,
+  meLoading: false,
+  meError: null,
 };
 
 const authSlice = createSlice({
@@ -48,8 +52,17 @@ const authSlice = createSlice({
       state.logoutLoading = false;
       state.logoutError = action.payload;
     },
-    me(state: AuthState, action: PayloadAction<string>) {
+    meRequest(state: AuthState, _action: PayloadAction) {
+      state.meLoading = true;
+      state.meError = null;
+    },
+    meSuccess(state: AuthState, action: PayloadAction<string>) {
+      state.meLoading = false;
       state.user = action.payload;
+    },
+    meFailure(state: AuthState, action: PayloadAction<{ error: any }>) {
+      state.meLoading = false;
+      state.meError = action.payload;
     },
   },
 });
@@ -63,7 +76,9 @@ export const {
   logoutRequest,
   logoutSuccess,
   logoutFailure,
-  me,
+  meRequest,
+  meSuccess,
+  meFailure,
 } = actions;
 
 export default reducer;
